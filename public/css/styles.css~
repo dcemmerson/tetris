@@ -1,0 +1,13 @@
+#tetrisOuterContainer {
+    height: 500px;
+    width: 500px;
+    border: 3px solid black;
+    border-radius: 20px;
+}
+#tetrisInnerContainer {
+    border: 1px solid black;
+    height: 450px;
+}
+.spacer {
+    height: 25px;
+}

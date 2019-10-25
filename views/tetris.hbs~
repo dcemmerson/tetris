@@ -1,0 +1,16 @@
+<h1 class="text-center display-2" style="font-size:5vw;">Tetris</h1>
+<hr class="bg-dark">
+<div class="container">
+</div>
+<div class="row justify-content-around">
+  <div class="">
+    <div id="tetrisOuterContainer">
+      <div class="spacer"></div>
+      <div id="tetrisInnerContainer"></div>
+    </div>
+    <button>
+      Start
+    </button>
+  </div>
+</div>
+<div style="min-height:100px;"></div>

@@ -1,0 +1,5 @@
+module.exports = function(app){
+    app.get('/tetris', function(req,res){
+	res.render('tetris');
+    });
+}

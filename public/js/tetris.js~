@@ -1,0 +1,107 @@
+var i = {
+    blocks: 
+    {
+	dir: [
+	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
+	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:3,row:2}],
+	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
+	    [{col:2,row:0},{col:2,row:1},{col:2,row:2},{col:2,row:3}]
+	]    
+    },
+    rowor: "cyan"
+};
+var j = {
+    blocks: 
+    {
+	dir: [
+	    [{col:0,row:1},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
+	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:2,row:1}],
+	    [{col:1,row:1},{col:1,row:2},{col:1,row:3},{col:2,row:3}],
+	    [{col:1,row:1},{col:1,row:2},{col:2,row:2},{col:3,row:2}]
+	]    
+    },
+    rowor: "blue"
+};
+var l = {
+    blocks: 
+    {
+	dir: [
+	    [{col:2,row:1},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
+	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:2,row:2}],
+	    [{col:2,row:1},{col:2,row:2},{col:2,row:3},{col:1,row:3}],
+	    [{col:1,row:2},{col:1,row:3},{col:2,row:3},{col:4,row:4}]
+	]    
+    },
+    color: "green"
+};
+var t = {
+    blocks: 
+    {
+	dir: [
+	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:1,row:1}],
+	    [{col:1,row:1},{col:1,row:2},{col:1,row:3},{col:2,row:2}],
+	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:1,row:3}],
+	    [{col:1,row:1},{col:1,row:2},{col:2,row:3},{col:0,row:2}]
+	]    
+    },
+    color: "yellow"
+};
+var z = {
+    blocks: 
+    {
+	dir: [
+	    [{col:0,row:2},{col:1,row:2},{col:1,row:1},{col:2,row:1}],
+	    [{col:1,row:0},{col:1,row:1},{col:2,row:1},{col:2,row:2}],
+	    [{col:1,row:2},{col:2,row:2},{col:2,row:1},{col:3,row:1}],
+	    [{col:2,row:0},{col:2,row:1},{col:3,row:1},{col:3,row:2}]
+	]    
+    },
+    color: "red"
+};
+var s = {
+    blocks: 
+    {
+	dir: [
+	    [{col:0,row:1},{col:1,row:1},{col:1,row:2},{col:2,row:2}],
+	    [{col:1,row:2},{col:1,row:1},{col:2,row:1},{col:2,row:0}],
+	    [{col:1,row:1},{col:2,row:1},{col:2,row:2},{col:3,row:2}],
+	    [{col:1,row:2},{col:1,row:1},{col:2,row:1},{col:2,row:0}]
+	]    
+    },
+    color: "red"
+};
+var o = {
+    blocks: 
+    {
+	dir: [
+	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
+	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
+	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
+	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}]
+	]    
+    },
+    color: "red"
+};
+
+
+window.addEventListener('load',() => {
+    let type = {blocks: [0x0F00, 0x2222, 0x00F0, 0x4444], color: 'cyan'   };
+    eachBlock(type,0,0,0);
+});
+
+function eachBlock(type, x, y, dir) {
+  var bit, result, row = 0, col = 0, blocks = type.blocks[dir];
+  for(bit = 0x8000 ; bit > 0 ; bit = bit >> 1) {
+    if (blocks & bit) {
+      fn(x + col, y + row);
+    }
+    if (++col === 4) {
+      col = 0;
+      ++row;
+    }
+  }
+};
+function fn(x,y){
+    console.log(`x = ${x}`);
+    console.log(`y = ${y}`);
+}
