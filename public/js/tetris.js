@@ -40,7 +40,7 @@ const pieces = [
 	    [{col:2,row:1},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
 	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:2,row:2}],
 	    [{col:2,row:1},{col:2,row:2},{col:2,row:3},{col:1,row:3}],
-	    [{col:1,row:2},{col:1,row:3},{col:2,row:3},{col:4,row:4}]
+	    [{col:1,row:2},{col:1,row:3},{col:2,row:3},{col:3,row:3}]
 	]    ,
 	color: "green",
 	currDir: 0,
@@ -52,7 +52,7 @@ const pieces = [
 	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:1,row:1}],
 	    [{col:1,row:1},{col:1,row:2},{col:1,row:3},{col:2,row:2}],
 	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:1,row:3}],
-	    [{col:1,row:1},{col:1,row:2},{col:2,row:3},{col:0,row:2}]
+	    [{col:1,row:1},{col:1,row:2},{col:1,row:3},{col:0,row:2}]
 	],
 	color: "yellow",
 	currDir: 0,
@@ -78,7 +78,7 @@ const pieces = [
 	    [{col:1,row:1},{col:2,row:1},{col:2,row:2},{col:3,row:2}],
 	    [{col:1,row:2},{col:1,row:1},{col:2,row:1},{col:2,row:0}]
 	],
-	color: "red",
+	color: "orange",
 	currDir: 0,
 	currX: START_X,
 	currY: START_Y
@@ -90,7 +90,7 @@ const pieces = [
 	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
 	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}]
 	],
-	color: "red",
+	color: "purple",
 	currDir: 0,
 	currX: START_X,
 	currY: START_Y
@@ -101,21 +101,20 @@ const pieces = [
 window.addEventListener('DOMContentLoaded',() => {
     var arr = createArray();
     var currPiece;
-    var free = false;
+    document.addEventListener('keydown',event => moveEvent(event,currPiece,arr));	    
     runTetris();
     
     function runTetris(){
-	if(!free){
+	if(!currPiece || currPiece.locked){
 	    clearTimeout(timeout);
-	    document.removeEventListener('keydown',event => (free = moveEvent(event,currPiece,arr)));
+//	    document.removeEventListener('keydown',moveEventListener);
 	    currPiece = spawnPiece(arr);
-	    document.addEventListener('keydown',event => (free = moveEvent(event,currPiece,arr)));
 	}
 	var timeout = autoMoveDown();
-	setTimeout(runTetris,5000);
+	setTimeout(free => runTetris(),3000);
     }
+    
 });
-
 function autoMoveDown(){
     return setTimeout(() =>{
 	var e = new KeyboardEvent("keydown", 
@@ -163,12 +162,13 @@ function removeBlock(x,y){
 }
 function addToArray(piece,arr){
     piece.dir[piece.currDir].forEach((pieceCoords) => {
-	arr[piece.currX][piece.currY] = piece.color;
+	arr[piece.currX + pieceCoords.col][piece.currY + pieceCoords.row] = piece.color;
     })
 }
 /***************************************** Movement *********************************************/
 //moveEvent returns false if piece is locked in place and a new piece should spawn
 function moveEvent(event,currPiece,arr){
+    console.log('moveEvent');
     if(event.key === "ArrowDown" || event.key === "ArrowUp" 
        || event.key === "ArrowRight" || event.key === "ArrowLeft") event.preventDefault();
     else return true;
@@ -177,12 +177,12 @@ function moveEvent(event,currPiece,arr){
     else{
 	console.log(false); 
 	if(event.key === "ArrowDown"){
-	    addToArray(currPiece,arr)
+	    addToArray(currPiece,arr);
+	    currPiece.locked = true;
 	    return false;
 	}
-	
-	return true;    
     }
+    return true;
 }
 function movePiece(key,currPiece){
 //    let canvas = document.getElementById('tetrisInnerContainer');
@@ -195,8 +195,8 @@ function movePiece(key,currPiece){
     else if(key === "ArrowLeft") currPiece.currX--; // currPiece.dir.forEach(element => --element.col);
     else if(key === "ArrowDown")currPiece.currY++;// currPiece.dir.forEach(element => ++element.row);
     else if(key === "ArrowUp"){
-	curPiece.dir = currPiece.dir[(currPiece.currDir + 1) % 4].slice();
-	curPiece.currDie = (currPiece.currDir + 1) % 4;
+//	curPiece.dir = currPiece.dir[(currPiece.currDir + 1) % 4].slice();
+	currPiece.currDir = (currPiece.currDir + 1) % 4;
     }
     addToBoard(currPiece);
 }
@@ -204,17 +204,18 @@ function movePiece(key,currPiece){
 function checkIfValidMove(key,currPiece,arr){
     let tempX = currPiece.currX;
     let tempY = currPiece.currY;
+    let tempDir = currPiece.currDir;
 
     if(key === "ArrowRight") tempX++; //currPiece.dir.forEach(element => ++element.col);
     else if(key === "ArrowLeft") tempX--; // currPiece.dir.forEach(element => --element.col);
     else if(key === "ArrowDown") tempY++;// currPiece.dir.forEach(element => ++element.row);
     else if(key === "ArrowUp"){
-	curPiece.dir = currPiece.dir[(currPiece.currDir + 1) % 4].slice();
-	curPiece.currDie = (currPiece.currDir + 1) % 4;
+	tempDir = (currPiece.currDir + 1) % 4;
     }
     let returnValue = true;
+    console.log(currPiece);
     currPiece.dir[currPiece.currDir].forEach(pieceCoords => {
-	if((pieceCoords.col + tempX) <= 0 || (pieceCoords.col + tempX) >= BOARD_BLOCKS_WIDE
+	if((pieceCoords.col + tempX) < 0 || (pieceCoords.col + tempX) >= BOARD_BLOCKS_WIDE
 		|| (pieceCoords.row + tempY) >= (BOARD_BLOCKS_HIGH)) returnValue = false;
 	else if(arr[pieceCoords.col + tempX][pieceCoords.row + tempY]) returnValue = false;;	
 	
