@@ -124,7 +124,8 @@ function autoMoveDown(){
     },1000)
 }
 function spawnPiece(arr){
-    let nextPiece = JSON.parse(JSON.stringify(pieces[getRandomInt(pieces.length - 1)])); //make copy of rand piece
+    let nextPiece = JSON.parse(JSON.stringify(pieces[0])); //make copy of rand piece
+//    let nextPiece = JSON.parse(JSON.stringify(pieces[getRandomInt(pieces.length - 1)])); //make copy of rand piece
     addToBoard(nextPiece);
     return nextPiece;
 }
@@ -162,27 +163,22 @@ function removeBlock(x,y){
 }
 function addToArray(piece,arr){
     piece.dir[piece.currDir].forEach((pieceCoords) => {
-	arr[piece.currX + pieceCoords.col][piece.currY + pieceCoords.row] = piece.color;
+	arr[piece.currY + pieceCoords.row][piece.currX + pieceCoords.col] = piece.color;
     })
 }
 /***************************************** Movement *********************************************/
-//moveEvent returns false if piece is locked in place and a new piece should spawn
 function moveEvent(event,currPiece,arr){
-    console.log('moveEvent');
     if(event.key === "ArrowDown" || event.key === "ArrowUp" 
        || event.key === "ArrowRight" || event.key === "ArrowLeft") event.preventDefault();
-    else return true;
-    console.log(checkIfValidMove(event.key,currPiece,arr));
+    else return;
     if(checkIfValidMove(event.key,currPiece,arr)) movePiece(event.key,currPiece); //make the move
     else{
-	console.log(false); 
 	if(event.key === "ArrowDown"){
 	    addToArray(currPiece,arr);
 	    currPiece.locked = true;
-	    return false;
+	    checkIfRowComplete(arr);
 	}
     }
-    return true;
 }
 function movePiece(key,currPiece){
 //    let canvas = document.getElementById('tetrisInnerContainer');
@@ -191,13 +187,11 @@ function movePiece(key,currPiece){
 	removeBlock(currPiece.currX + pieceCoords.col,currPiece.currY + pieceCoords.row);
     });
     
-    if(key === "ArrowRight") currPiece.currX++; //currPiece.dir.forEach(element => ++element.col);
-    else if(key === "ArrowLeft") currPiece.currX--; // currPiece.dir.forEach(element => --element.col);
-    else if(key === "ArrowDown")currPiece.currY++;// currPiece.dir.forEach(element => ++element.row);
-    else if(key === "ArrowUp"){
-//	curPiece.dir = currPiece.dir[(currPiece.currDir + 1) % 4].slice();
-	currPiece.currDir = (currPiece.currDir + 1) % 4;
-    }
+    if(key === "ArrowRight") currPiece.currX++;
+    else if(key === "ArrowLeft") currPiece.currX--;
+    else if(key === "ArrowDown") currPiece.currY++;
+    else if(key === "ArrowUp") currPiece.currDir = (currPiece.currDir + 1) % 4;
+    
     addToBoard(currPiece);
 }
 //returns true or false
@@ -206,32 +200,62 @@ function checkIfValidMove(key,currPiece,arr){
     let tempY = currPiece.currY;
     let tempDir = currPiece.currDir;
 
-    if(key === "ArrowRight") tempX++; //currPiece.dir.forEach(element => ++element.col);
-    else if(key === "ArrowLeft") tempX--; // currPiece.dir.forEach(element => --element.col);
-    else if(key === "ArrowDown") tempY++;// currPiece.dir.forEach(element => ++element.row);
+    if(key === "ArrowRight") tempX++; 
+    else if(key === "ArrowLeft") tempX--;
+    else if(key === "ArrowDown") tempY++;
     else if(key === "ArrowUp"){
 	tempDir = (currPiece.currDir + 1) % 4;
     }
     let returnValue = true;
-    console.log(currPiece);
-    currPiece.dir[currPiece.currDir].forEach(pieceCoords => {
+     currPiece.dir[currPiece.currDir].forEach(pieceCoords => {
 	if((pieceCoords.col + tempX) < 0 || (pieceCoords.col + tempX) >= BOARD_BLOCKS_WIDE
 		|| (pieceCoords.row + tempY) >= (BOARD_BLOCKS_HIGH)) returnValue = false;
-	else if(arr[pieceCoords.col + tempX][pieceCoords.row + tempY]) returnValue = false;;	
+	else if(arr[pieceCoords.row + tempY][pieceCoords.col + tempX]) returnValue = false;;	
 	
     });
     return returnValue;
 }
+function checkIfRowComplete(arr){
+    let redraw = false;
+    arr.forEach((row,index) => {
+	let count = 0;
+	row.forEach((element,index2) => element ? count++ : null);
+	if(count === BOARD_BLOCKS_WIDE){
+	    console.log(arr);
+	    removeRow(arr,index);
+	    redraw = true;
+	}
+    });
+    if(redraw){
+
+	clearAndReDraw(arr);
+	console.log(arr);
+    }
+}
+function clearAndReDraw(arr){
+    let canvas = document.getElementById('tetrisInnerContainer');
+    let context = canvas.getContext('2d');
+    context.clearRect(0,0,BLOCK_WIDTH * BOARD_BLOCKS_WIDE,BLOCK_HEIGHT * BOARD_BLOCKS_HIGH);
+    arr.forEach((row,rowIndex) => {
+	row.forEach((color,colIndex) => {
+	    color ? drawBlock(colIndex,rowIndex,color) : null;
+	})
+    })
+}
+function removeRow(arr,index){
+    arr.splice(index,1);
+    arr.unshift(new Array(BOARD_BLOCKS_WIDE).fill(0));
+}
 /************************************** MISC FUNCTIONS ******************************************/
 function createArray(){
     var arr = new Array(BOARD_BLOCKS_WIDE);
-    for(let i = 0; i < BOARD_BLOCKS_WIDE; ++i){
-	let arrCol = new Array(20).fill(0);
-	arr[i] = arrCol;
+    for(let i = 0; i < BOARD_BLOCKS_HIGH; ++i){
+	let arrRow = new Array(BOARD_BLOCKS_WIDE).fill(0);
+	arr[i] = arrRow;
     }
     return arr;
 }
-//getRandomInt(max) taken straight off MDN
+//getRandomInt(max) taken sraight off MDN
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
