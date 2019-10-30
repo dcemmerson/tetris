@@ -1,22 +1,44 @@
+const SQUARE = 4; //represents the hidden 4x4 grid that each block fits in
 const BOARD_BLOCKS_WIDE = 10;
 const BOARD_BLOCKS_HIGH = 20;
 const BLOCK_HEIGHT = document.getElementById('tetrisInnerContainer').height / BOARD_BLOCKS_HIGH;
 const BLOCK_WIDTH = document.getElementById('tetrisInnerContainer').width / BOARD_BLOCKS_WIDE;
-const BOARD_HEIGHT = document.getElementById('tetrisInnerContainer').height;
+const NEXT_BLOCK_HEIGHT = document.getElementById('nextPieceCanvas').height / SQUARE;
+const NEXT_BLOCK_WIDTH = document.getElementById('nextPieceCanvas').width/ SQUARE;
+const NEXT_BOARD_WIDTH = document.getElementById('nextPieceCanvas').width;
+const NEXT_BOARD_HEIGHT = document.getElementById('nextPieceCanvas').height;
 const BOARD_WIDTH = document.getElementById('tetrisInnerContainer').width;
+const BOARD_HEIGHT = document.getElementById('tetrisInnerContainer').height;
+const POINTS_PER_PIECE = 10;
+const POINTS_PER_ROW = 100;
+const MILLISECONDS_FACTOR = 2000; //used to base how fast pieces fall
+const LEVEL_CHANGE_LINES = 5; //increment level every this many points
+const START_LEVEL = 1;
+const START_SCORE = 0;
+const START_LINES_CLEARED = 0;
 
 const START_X = BOARD_BLOCKS_WIDE / 2;
 const START_Y = 0;
 
-const SQUARE = 4; //represents the hidden 4x4 grid that each block fits in
-
+const blankPiece = {
+    dir:[//l
+	[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
+	[{col:2,row:0},{col:2,row:1},{col:2,row:2},{col:2,row:3}],
+	[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
+	[{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}]
+    ],
+    color: "cyan",
+    currDir: 0,
+    currX: START_X,
+    currY: START_Y
+}
 const pieces = [
     {
-	dir:[
-	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
-	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:3,row:2}],
-	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
-	    [{col:2,row:0},{col:2,row:1},{col:2,row:2},{col:2,row:3}]
+	dir:[//l
+	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
+	    [{col:2,row:0},{col:2,row:1},{col:2,row:2},{col:2,row:3}],
+	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
+	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}]
 	],
 	color: "cyan",
 	currDir: 0,
@@ -24,11 +46,11 @@ const pieces = [
 	currY: START_Y
     },
     {
-	dir: [
-	    [{col:0,row:1},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
+	dir: [//L
+	    [{col:0,row:0},{col:1,row:0},{col:1,row:1},{col:1,row:2}],
 	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:2,row:1}],
-	    [{col:1,row:1},{col:1,row:2},{col:1,row:3},{col:2,row:3}],
-	    [{col:1,row:1},{col:1,row:2},{col:2,row:2},{col:3,row:2}]
+	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:2,row:2}],
+	    [{col:0,row:2},{col:0,row:1},{col:1,row:1},{col:2,row:1}]
 	],
 	color: "blue",
 	currDir: 0,
@@ -36,11 +58,11 @@ const pieces = [
 	currY: START_Y
     },
     {
-	dir: [
-	    [{col:2,row:1},{col:1,row:1},{col:1,row:2},{col:1,row:3}],
-	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:2,row:2}],
-	    [{col:2,row:1},{col:2,row:2},{col:2,row:3},{col:1,row:3}],
-	    [{col:1,row:2},{col:1,row:3},{col:2,row:3},{col:3,row:3}]
+	dir: [//j
+	    [{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:0,row:2}],
+	    [{col:0,row:1},{col:0,row:2},{col:1,row:2},{col:2,row:2}],
+	    [{col:2,row:0},{col:1,row:0},{col:1,row:1},{col:1,row:2}],
+	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:2,row:2}]
 	]    ,
 	color: "green",
 	currDir: 0,
@@ -48,7 +70,7 @@ const pieces = [
 	currY: START_Y
     },
     {
-	dir: [
+	dir: [//T
 	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:1,row:1}],
 	    [{col:1,row:1},{col:1,row:2},{col:1,row:3},{col:2,row:2}],
 	    [{col:0,row:2},{col:1,row:2},{col:2,row:2},{col:1,row:3}],
@@ -60,7 +82,7 @@ const pieces = [
 	currY: START_Y
     },
     {
-	dir: [
+	dir: [//s
 	    [{col:0,row:2},{col:1,row:2},{col:1,row:1},{col:2,row:1}],
 	    [{col:1,row:0},{col:1,row:1},{col:2,row:1},{col:2,row:2}],
 	    [{col:1,row:2},{col:2,row:2},{col:2,row:1},{col:3,row:1}],
@@ -72,7 +94,7 @@ const pieces = [
 	currY: START_Y
     },
     {
-	dir: [
+	dir: [//z
 	    [{col:0,row:1},{col:1,row:1},{col:1,row:2},{col:2,row:2}],
 	    [{col:1,row:2},{col:1,row:1},{col:2,row:1},{col:2,row:0}],
 	    [{col:1,row:1},{col:2,row:1},{col:2,row:2},{col:3,row:2}],
@@ -84,7 +106,7 @@ const pieces = [
 	currY: START_Y
     },
     {
-	dir: [
+	dir: [//o
 	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
 	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
 	    [{col:1,row:1},{col:1,row:2},{col:2,row:1},{col:2,row:2}],
@@ -95,66 +117,120 @@ const pieces = [
 	currX: START_X,
 	currY: START_Y
     }
-]
-
+];
+/*
+  const gameover = {
+  dir:[
+  [{col:3,row:0},{col:2,row:0},{col:1,row:0},{col:1,row:3}],
+  ],
+  color: "cyan",
+  currDir: 0,
+  currX: START_X,
+  currY: START_Y
+  };
+*/
 
 window.addEventListener('DOMContentLoaded',() => {
+    playTetris();
+});
+function playTetris(){
+    spawnNextPiece();
+    document.getElementById('tetrisLinesCleared').innerText = START_LINES_CLEARED;
+    document.getElementById('tetrisScore').innerText = START_SCORE;
+    document.getElementById('tetrisLevel').innerText = START_LEVEL;
     var arr = createArray();
     var currPiece;
-    document.addEventListener('keydown',event => moveEvent(event,currPiece,arr));	    
+    var timeout = autoMoveDown();
+    document.addEventListener('keydown',keyEvent);
     runTetris();
     
+    function keyEvent(event){
+//	try{
+	    if(moveEvent(event,currPiece,arr) && event.key == "ArrowDown"){
+		clearTimeout(timeout);
+		runTetris();
+	    }
+//	}
+//	catch{
+	    console.log('game is over');
+	}
+//    }
     function runTetris(){
 	if(!currPiece || currPiece.locked){
 	    clearTimeout(timeout);
-//	    document.removeEventListener('keydown',moveEventListener);
 	    currPiece = spawnPiece(arr);
 	}
-	var timeout = autoMoveDown();
-	setTimeout(free => runTetris(),3000);
-    }
-    
-});
-function autoMoveDown(){
-    return setTimeout(() =>{
-	var e = new KeyboardEvent("keydown", 
-				  {bubbles: true, cancelable: true, key: "ArrowDown", charCode: 0,keyCode: 40});
-	document.getElementsByTagName('body')[0].dispatchEvent(e);
-//	autoMoveDown();
-    },1000)
-}
-function spawnPiece(arr){
-    let nextPiece = JSON.parse(JSON.stringify(pieces[0])); //make copy of rand piece
-//    let nextPiece = JSON.parse(JSON.stringify(pieces[getRandomInt(pieces.length - 1)])); //make copy of rand piece
-    addToBoard(nextPiece);
-    return nextPiece;
-}
-
-//CAUTION: must check if piece is in valid location before calling addToArray!!
-function addToBoard(piece){
-    piece.dir[piece.currDir].forEach((pieceCoords) => {
-	drawBlock(piece.currX + pieceCoords.col,piece.currY + pieceCoords.row,piece.color);
-    });
-}
-/*
-function addToBoard(startX,startY,piece){
-    for(let i = 0; i < SQUARE; ++i){
-	for(let j = 0; j < SQUARE; ++j){
-	    piece.dir[piece.currDir].forEach((pieceCoords) => {
-		if(pieceCoords.col === i && pieceCoords.row ===j){
-//		    arr[startX + i][startY + j] = piece.color;
-		    drawBlock(startX + i, startY + j,piece.color);
-		}
-	    })
+	if(currPiece) timeout = autoMoveDown();
+	else{ //gameover
+	    document.removeEventListener('keydown',keyEvent);
+	    document.getElementById('gameover').hidden = false;
 	}
     }
+    function autoMoveDown(){
+	return setTimeout(() =>{
+	    var e = new KeyboardEvent("keydown", 
+				      {bubbles: true, cancelable: true, key: "ArrowDown", charCode: 0,keyCode: 40});
+	    document.getElementsByTagName('body')[0].dispatchEvent(e);
+	    //	autoMoveDown();
+	    runTetris();
+	},MILLISECONDS_FACTOR / parseInt(document.getElementById('tetrisLevel').innerText))}
 }
-*/
-function drawBlock(x,y,color){
+function replay(){
+    //clear entire gameboard
     let canvas = document.getElementById('tetrisInnerContainer');
     let context = canvas.getContext('2d');
+    context.fillStyle = "white";
+    context.fillRect(0,0,BOARD_WIDTH,BOARD_HEIGHT);
+
+    document.getElementById('gameover').hidden = true;
+    playTetris();
+}
+
+function spawnPiece(arr){
+    let nextPiece = JSON.parse(JSON.stringify(pieces[parseInt(document.getElementById('nextPiece').value)])); //force copy of random piece
+    addToBoard(nextPiece);
+    spawnNextPiece();
+    if(checkIfValidSpawn(nextPiece,arr)) return nextPiece;
+    else return false; 
+}
+function spawnNextPiece(){
+    let randInt = getRandomInt(pieces.length);
+    let nextPiece = JSON.parse(JSON.stringify(pieces[randInt])); //force copy of random piece
+    document.getElementById('nextPiece').value = randInt;
+    addToNextBoard(nextPiece);
+}
+function addToNextBoard(piece){
+    let canvas = document.getElementById('nextPieceCanvas');
+    let context = canvas.getContext('2d');
+    context.clearRect(0,0,NEXT_BOARD_WIDTH,NEXT_BOARD_HEIGHT);
+    context.fillStyle = piece.color;
+    piece.dir[piece.currDir].forEach((pieceCoords) => {
+	(pieceCoords.col === 3) ? 
+	context.fillRect((pieceCoords.col) * NEXT_BLOCK_WIDTH,
+			 (pieceCoords.row) * NEXT_BLOCK_HEIGHT,
+			 NEXT_BLOCK_WIDTH - 1,
+			 NEXT_BLOCK_HEIGHT - 1)
+	    : context.fillRect((pieceCoords.col) * NEXT_BLOCK_WIDTH,
+				 (pieceCoords.row) * NEXT_BLOCK_HEIGHT,
+				 NEXT_BLOCK_WIDTH - 1,
+				 NEXT_BLOCK_HEIGHT - 1);
+    });
+}
+//CAUTION: must check if piece is in valid location before calling addToArray!!
+function addToBoard(piece){
+    let canvas = document.getElementById('tetrisInnerContainer');
+    let context = canvas.getContext('2d');
+    context.fillStyle = piece.color;
+    piece.dir[piece.currDir].forEach((pieceCoords) => {
+	context.fillRect((piece.currX + pieceCoords.col) * BLOCK_WIDTH,
+			 (piece.currY + pieceCoords.row) * BLOCK_HEIGHT,
+			 BLOCK_WIDTH - 1,
+			 BLOCK_HEIGHT - 1)
+    });
+}
+function drawBlock(x,y,color,context){
     context.fillStyle = color;
-    context.fillRect(x * BLOCK_WIDTH,y * BLOCK_HEIGHT,BLOCK_WIDTH,BLOCK_HEIGHT);
+    context.fillRect(x * BLOCK_WIDTH,y * BLOCK_HEIGHT,BLOCK_WIDTH - 1,BLOCK_HEIGHT - 1);
 }
 function removeBlock(x,y){
     let canvas = document.getElementById('tetrisInnerContainer');
@@ -166,17 +242,28 @@ function addToArray(piece,arr){
 	arr[piece.currY + pieceCoords.row][piece.currX + pieceCoords.col] = piece.color;
     })
 }
+function removeFromArray(piece,arr){
+    piece.dir[piece.currDir].forEach(pieceCoords => {
+	arr[piece.currY + pieceCoords.row][piece.currX + pieceCoords.col] = 0;
+    })
+}
 /***************************************** Movement *********************************************/
 function moveEvent(event,currPiece,arr){
-    if(event.key === "ArrowDown" || event.key === "ArrowUp" 
+    if(currPiece.locked || event.key === "ArrowDown" || event.key === "ArrowUp" 
        || event.key === "ArrowRight" || event.key === "ArrowLeft") event.preventDefault();
-    else return;
-    if(checkIfValidMove(event.key,currPiece,arr)) movePiece(event.key,currPiece); //make the move
+    else return false;
+    
+    if(checkIfValidMove(event.key,currPiece,arr)){
+	movePiece(event.key,currPiece); //make the move
+	return true;
+    }
     else{
 	if(event.key === "ArrowDown"){
 	    addToArray(currPiece,arr);
 	    currPiece.locked = true;
+	    addPoints(POINTS_PER_PIECE);
 	    checkIfRowComplete(arr);
+	    return true;
 	}
     }
 }
@@ -207,12 +294,19 @@ function checkIfValidMove(key,currPiece,arr){
 	tempDir = (currPiece.currDir + 1) % 4;
     }
     let returnValue = true;
-     currPiece.dir[currPiece.currDir].forEach(pieceCoords => {
+     currPiece.dir[tempDir].forEach(pieceCoords => {
 	if((pieceCoords.col + tempX) < 0 || (pieceCoords.col + tempX) >= BOARD_BLOCKS_WIDE
 		|| (pieceCoords.row + tempY) >= (BOARD_BLOCKS_HIGH)) returnValue = false;
 	else if(arr[pieceCoords.row + tempY][pieceCoords.col + tempX]) returnValue = false;;	
 	
     });
+    return returnValue;
+}
+function checkIfValidSpawn(currPiece,arr){
+    let returnValue = true;
+     currPiece.dir[currPiece.currDir].forEach(pieceCoords => {
+	 arr[pieceCoords.row + currPiece.currY][pieceCoords.col + currPiece.currX] ? returnValue = false : null;
+     });
     return returnValue;
 }
 function checkIfRowComplete(arr){
@@ -223,6 +317,8 @@ function checkIfRowComplete(arr){
 	if(count === BOARD_BLOCKS_WIDE){
 	    console.log(arr);
 	    removeRow(arr,index);
+	    addPoints(POINTS_PER_ROW);
+	    addLineCleared();
 	    redraw = true;
 	}
     });
@@ -238,7 +334,7 @@ function clearAndReDraw(arr){
     context.clearRect(0,0,BLOCK_WIDTH * BOARD_BLOCKS_WIDE,BLOCK_HEIGHT * BOARD_BLOCKS_HIGH);
     arr.forEach((row,rowIndex) => {
 	row.forEach((color,colIndex) => {
-	    color ? drawBlock(colIndex,rowIndex,color) : null;
+	    color ? drawBlock(colIndex,rowIndex,color,context) : null;
 	})
     })
 }
@@ -258,4 +354,19 @@ function createArray(){
 //getRandomInt(max) taken sraight off MDN
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
+}
+function addPoints(points){
+    let scoreSpan = document.getElementById('tetrisScore')
+    let oldScore = parseInt(scoreSpan.innerText);
+    let newScore = oldScore + points;
+    scoreSpan.innerText = newScore;
+}
+function addLineCleared(){
+   let linesSpan = document.getElementById('tetrisLinesCleared')
+    let oldLines = parseInt(linesSpan.innerText);
+    let newLines = oldLines + 1;
+    linesSpan.innerText = newLines;
+    if(newLines % LEVEL_CHANGE_LINES === 0)
+	document.getElementById('tetrisLevel').innerText = parseInt(document.getElementById('tetrisLevel').innerText) + 1;
+
 }
