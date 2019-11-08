@@ -118,17 +118,6 @@ const pieces = [
 	currY: START_Y
     }
 ];
-/*
-  const gameover = {
-  dir:[
-  [{col:3,row:0},{col:2,row:0},{col:1,row:0},{col:1,row:3}],
-  ],
-  color: "cyan",
-  currDir: 0,
-  currX: START_X,
-  currY: START_Y
-  };
-*/
 
 window.addEventListener('DOMContentLoaded',() => {
     playTetris();
@@ -145,17 +134,17 @@ function playTetris(){
     runTetris();
     
     function keyEvent(event){
-//	try{
+	try{
 	    if(moveEvent(event,currPiece,arr) && event.key == "ArrowDown"){
 		clearTimeout(timeout);
 		runTetris();
 	    }
-//	}
-//	catch{
+	}
+	catch{
 	    console.log('game is over');
 	}
-//    }
-    function runTetris(){
+    }
+    async function runTetris(){
 	if(!currPiece || currPiece.locked){
 	    clearTimeout(timeout);
 	    currPiece = spawnPiece(arr);
@@ -164,6 +153,11 @@ function playTetris(){
 	else{ //gameover
 	    document.removeEventListener('keydown',keyEvent);
 	    document.getElementById('gameover').hidden = false;
+//	    document.getElementById('finalLevel').value = document.getElementById('tetrisLevel').innerText;
+	    let score =  document.getElementById('tetrisScore').innerText;
+	    document.getElementById('finalScore').value = score;
+	    let highScores = await fetchHighScores();
+	    if(score > highScores[highScores.length - 1].score) document.getElementById('highScoreAlert').hidden = false;
 	}
     }
     function autoMoveDown(){
@@ -208,7 +202,7 @@ function addToNextBoard(piece){
 	(pieceCoords.col === 3) ? 
 	context.fillRect((pieceCoords.col) * NEXT_BLOCK_WIDTH,
 			 (pieceCoords.row) * NEXT_BLOCK_HEIGHT,
-			 NEXT_BLOCK_WIDTH - 1,
+			 NEXT_BLOCK_WIDTH - 2,
 			 NEXT_BLOCK_HEIGHT - 1)
 	    : context.fillRect((pieceCoords.col) * NEXT_BLOCK_WIDTH,
 				 (pieceCoords.row) * NEXT_BLOCK_HEIGHT,

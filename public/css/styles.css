@@ -41,6 +41,13 @@
     color: #DDDDDD;
     border-radius: 5px;
 }
+#submitName {
+    font-size: 16px;
+}
+.input {
+    border-radius: 7px;
+    max-width: 150px;
+}
 #replayButton {
     font-size: 20px;
     background-color: #55555;
@@ -48,4 +55,19 @@
     padding: 10px 30px;
     border-radius: 4px;
     border-color: #AAAAAA;
+}
+#highScoresContainer {
+    overflow: hidden;
+    font-family: 'Comic Sans';
+}
+#highScores {
+    position: relative;
+    overflow: hidden;
+}
+#hallOfFameLink {
+    color: blue;
+    font-size: 13px;
+}
+#hallOfFameLink:hover {
+    cursor: pointer;
 }

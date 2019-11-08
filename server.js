@@ -12,7 +12,7 @@ var bodyParser = require('body-parser');
 const url = require('url');
 
 var session = require('express-session');
-//var mysql = require('./dbcon.js');
+var mysql = require('./dbcon.js');
 //var auth = require('./auth/auth');
 //var bcrypt = require('bcrypt');
 //const saltRounds = 10;
@@ -53,7 +53,7 @@ app.use(AccessControl({
     message: 'Unauthorized'
 }));
 require('./server/routes.js')(app);
-require('./server/ajax_routes.js')(app);
+require('./server/ajax_routes.js')(app,mysql);
 app.use(express.static('public'));
 
 app.engine('hbs', hbs.engine);
