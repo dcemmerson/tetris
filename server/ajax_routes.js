@@ -1,6 +1,7 @@
 let db = require('./db_functions.js');
 module.exports = function(app,mysql){
     app.get('/getHighScores', function(req,res){
+	console.log('inside getHighScores');
 	try{
 	    db.getHighScores(res,mysql,parseInt(req.query.start),parseInt(req.query.packetSize))
 		.then(results => res.send(results))

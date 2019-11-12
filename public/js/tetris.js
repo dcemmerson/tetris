@@ -17,22 +17,30 @@ const START_LEVEL = 1;
 const START_SCORE = 0;
 const START_LINES_CLEARED = 0;
 
+const ROTATE = [[0,-1],[1,0]];
+//const ROTATE = [{col:0,row:-1},{col:1,row:0}];
+//const ROTATE = [[-1,0],[0,1]];
+
 const START_X = BOARD_BLOCKS_WIDE / 2;
 const START_Y = 0;
 
-const blankPiece = {
-    dir:[//l
-	[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
-	[{col:2,row:0},{col:2,row:1},{col:2,row:2},{col:2,row:3}],
-	[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
-	[{col:1,row:0},{col:1,row:1},{col:1,row:2},{col:1,row:3}]
-    ],
+const testPiece = {
+    dir: [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
     color: "cyan",
     currDir: 0,
     currX: START_X,
     currY: START_Y
 }
 const pieces = [
+/*
+{
+    dir: [[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}]],
+    color: "cyan",
+    currDir: 0,
+    currX: START_X,
+    currY: START_Y
+}
+*/
     {
 	dir:[//l
 	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
@@ -45,6 +53,7 @@ const pieces = [
 	currX: START_X,
 	currY: START_Y
     },
+
     {
 	dir: [//L
 	    [{col:0,row:0},{col:1,row:0},{col:1,row:1},{col:1,row:2}],
@@ -153,7 +162,6 @@ function playTetris(){
 	else{ //gameover
 	    document.removeEventListener('keydown',keyEvent);
 	    document.getElementById('gameover').hidden = false;
-//	    document.getElementById('finalLevel').value = document.getElementById('tetrisLevel').innerText;
 	    let score =  document.getElementById('tetrisScore').innerText;
 	    document.getElementById('finalScore').value = score;
 	    let highScores = await fetchHighScores();
@@ -262,8 +270,6 @@ function moveEvent(event,currPiece,arr){
     }
 }
 function movePiece(key,currPiece){
-//    let canvas = document.getElementById('tetrisInnerContainer');
-//    let context = canvas.getContext('2d');
     currPiece.dir[currPiece.currDir].forEach((pieceCoords) => {
 	removeBlock(currPiece.currX + pieceCoords.col,currPiece.currY + pieceCoords.row);
     });
@@ -363,4 +369,24 @@ function addLineCleared(){
     if(newLines % LEVEL_CHANGE_LINES === 0)
 	document.getElementById('tetrisLevel').innerText = parseInt(document.getElementById('tetrisLevel').innerText) + 1;
 
+}
+//do a 90deg cc linear transformation, then make sure piece is still on board
+function rotate(dir){
+    //[ROTATE] * [dir]
+    let newDirection = dir.map(block => {
+	return {col:ROTATE[1][0] * block.row + ROTATE[1][1] * block.col,
+		row:ROTATE[0][0] * block.row + ROTATE[0][1] * block.col};
+    });
+    
+    var moved;
+    //now make sure block still falls on 4x4 grid
+    do{
+	moved = false;
+	newDirection.forEach(block => {
+	    if(block.col < 0){newDirection.forEach(eachBlock => eachBlock.col += (-block.col)); moved = true;}
+	    if(block.row < 0){newDirection.forEach(eachBlock => eachBlock.row += (-block.row)); moved = true;}
+	});
+    }while(moved);
+    
+    return newDirection;
 }

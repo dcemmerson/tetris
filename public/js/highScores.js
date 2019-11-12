@@ -2,7 +2,8 @@ const NUMBER_OF_SCORES_SHOWN = 3; //displayed in moving scores at top
 const START_ANIMATION_POSITION = -550;
 document.addEventListener('DOMContentLoaded', async function thisFunction(){
     document.getElementById('submitScore').addEventListener('click',submitScore);
-    document.getElementById('hallOfFameLink').addEventListener('click',retrieveAllScores);
+    let hallOfFameLinks = document.getElementsByClassName('hallOfFameLink');
+    for(let i = 0; i < hallOfFameLinks.length; i++) hallOfFameLinks[i].addEventListener('click',retrieveAllScores);
     
     try{
 	let highScores = await fetchHighScores();
