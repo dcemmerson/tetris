@@ -25,5 +25,39 @@ module.exports = function(app,mysql){
 		
 	    });
     });
+    app.post('/createNewPiece', function(req,res){
+	db.addNewPiece(res,mysql,req.body.name,req.body.color,req.body.coordinates)
+	    .then(results => {
+		let context = {};
+		context.color = req.body.color;
+		res.send(context);
+	    })
+	    .catch(err => {
+		console.log('in createNewPiece catch');
+		console.log(err);
+		res.end();		
+	    });
+
+    });
+    app.get('/getAllPiecesList', function(req,res){
+	db.getAllPiecesList(res,mysql)
+	    .then(results => res.send(results))
+	    .catch(err => {
+		if(err) console.log(err);
+		console.log('inside getAllPiecesList catch');
+		res.end();
+	    });
+	
+    });
+    app.post('/retrievePieceFromDB', function(req,res){
+	db.retrievePiece(res,mysql,parseInt(req.body.pieceId))
+	    .then(results => res.send(results))
+	    .catch(err => {
+		if(err) console.log(err);
+		console.log('inside retrievePieceFromDB catch');
+		res.end();
+	    });
+	
+    });
 }
-	     
+

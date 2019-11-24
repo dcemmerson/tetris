@@ -1,0 +1,95 @@
+document.addEventListener('DOMContentLoaded', async function thisFunction(){
+    let highScores = await fetchHighScores();
+    document.getElementById('submitScore').addEventListener('click',submitScore);
+    highScoresAnimation(highScores.reduce((accum,curr,index) => (accum + 
+							      ((index === 0) ? '1st'
+							       : (index === 1) ? '2nd'
+							       : (index === 2) ? '3rd'
+							       : ' ')
+							      + '. ' + curr.username 
+							      + ' ' + curr.score
+							      + ((index === 2) ? ' ' : ' *** ')), ''));
+});
+async function fetchHighScores(){
+    //    document.getElementById('highScoresDiv').innerText = "high scores";
+    let response = await fetch('/getHighScores',{
+	method: 'GET',
+	mode: 'cors',
+	cache: 'no-cache',
+	credentials: 'same-origin',
+	headers: {
+	    'Content-Type': 'application/json'
+	}
+    })
+    return response.json();
+}
+function highScoresAnimation(results){
+ 
+    var animate = document.createElement('div');
+    animate.innerText = results;
+    animate.setAttribute('id','highScores');
+
+    var secondAnimation = false;
+    let position = -250;
+    animate.style.left = position + 'px';
+    let docWidth = document.body.clientWidth;
+    var interval = setInterval(frame,30);
+    document.getElementById('highScoresContainer').appendChild(animate);
+
+    function frame(){
+	if(position >= animate.parentNode.clientWidth){
+	    animate.remove();
+	    clearInterval(interval);
+	    highScoresAnimation(results);
+	}
+	position = position + 2;
+	animate.style.left = position + 'px';
+    }
+}
+
+async function submitScore(event){
+    event.preventDefault();
+   
+    this.disabled = true;
+    this.value = "Saving...";
+    document.getElementById('inputName').disabled = true;
+    var context = {};
+    context.username = document.getElementById('inputName').value;
+    context.score = document.getElementById('tetrisScore').innerHTML;
+    context.level = document.getElementById('tetrisLevel').innerHTML;
+
+    let response = await fetch('/submitUserScore',{
+	method: 'POST',
+	body: JSON.stringify(context),
+	mode: 'cors',
+	cache: 'no-cache',
+	credentials: 'same-origin',
+	headers: {
+	    'Content-Type': 'application/json'
+	}
+    })
+    let results = await response.json();
+    if(results === "failed") this.value = "Unable to save...";
+    else{
+	let highScoresContainer = document.getElementById('highScoresContainer');
+	while(highScoresContainer.firstChild)
+	    highScoresContainer.removeChild(highScoresContainer.firstChild);
+	this.disabled = false
+	this.value = "Save";
+	document.getElementById('highScoreAlert').hidden = true;
+	document.getElementById('inputName').disabled = false;
+	document.getElementById('inputName').value = '';
+
+	replay();
+	highScoresAnimation(results.reduce((accum,curr,index) => (accum + 
+								  ((index === 0) ? '1st'
+								   : (index === 1) ? '2nd'
+								   : (index === 2) ? '3rd'
+								   : ' ')
+								  + '. ' + curr.username 
+								  + ' ' + curr.score
+								  + ((index === 2) ? ' ' : ' *** ')), ''));	
+    }
+    
+}
+

@@ -6,13 +6,26 @@
 }
 #tetrisInnerContainer {
     border: 1px solid #AAAAAA;
-    margin-left: 125px;
-    border-radius: 5px;
+/*    margin-left: 125px;
+*/    border-radius: 5px;
 }
 #nextPieceContainer {
     border: 1px solid #AAAAAA;
     max-width: 75px;
+    max-height: 75px;
     border-radius: 5px;
+    padding: 0px;
+}
+#nextPieceCanvas {
+
+}
+.occurences{
+
+}
+#occurenceContainer {
+    max-height: 75vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .spacer {
     height: 25px;
@@ -35,8 +48,8 @@
     width:252px;
     position: absolute;
     background: rgba(0,0,0,0.8);
-    margin-left: 125px;
-    font-size: 60px;
+/*    margin-left: 125px;
+*/    font-size: 60px;
     text-align:center;
     color: #DDDDDD;
     border-radius: 5px;
@@ -64,10 +77,17 @@
     position: relative;
     overflow: hidden;
 }
-#hallOfFameLink {
+.aLink {
     color: blue;
     font-size: 13px;
 }
-#hallOfFameLink:hover {
+.aLink:hover {
+    cursor: pointer;
+}
+.createPieceGrid {
+    border: 1px solid black;
+}
+.createPieceGrid:hover {
+    background-color: red;
     cursor: pointer;
 }

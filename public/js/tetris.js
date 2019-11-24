@@ -24,6 +24,7 @@ const ROTATE = [[0,-1],[1,0]];
 const START_X = BOARD_BLOCKS_WIDE / 2;
 const START_Y = 0;
 
+/*
 const testPiece = {
     dir: [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
     color: "cyan",
@@ -31,16 +32,8 @@ const testPiece = {
     currX: START_X,
     currY: START_Y
 }
-const pieces = [
-/*
-{
-    dir: [[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}]],
-    color: "cyan",
-    currDir: 0,
-    currX: START_X,
-    currY: START_Y
-}
 */
+const hardPieces = [//represent the hardcoded pieces
     {
 	dir:[//l
 	    [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
@@ -127,11 +120,99 @@ const pieces = [
 	currY: START_Y
     }
 ];
-
+const softPieces = [ //represent the user created pieces
+    {
+	dir: [[{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}]],
+	color: "black",
+	currDir: 0,
+	currX: START_X,
+	currY: START_Y
+    }
+];
+const pieces = [];
 window.addEventListener('DOMContentLoaded',() => {
+    initialize();
+    hardPieces.forEach(piece => pieces.push(piece));
+    getAllPieceList();
     playTetris();
+    document.getElementById('addPieceToGame').addEventListener('click',retrievePieceFromDB);
 });
+
+function initialize(){
+//    pieces = [];
+    let occurences = document.getElementById('occurenceContainer');
+    while(occurences.firstChild) occurences.removeChild(occurences.firstChild);
+//    softPieces.forEach(piece => {
+//	while(piece.dir.length < 4)
+//	    piece.dir.push(computeRotationalTransformation(piece.dir[piece.dir.length - 1]));
+//	pieces.push(piece);
+//    });
+}
+async function retrievePieceFromDB(){
+    var context = {};
+    let addPiece = {};
+    let dropdown = document.getElementById('piecesList');
+    context.pieceId = dropdown[dropdown.selectedIndex].value;
+
+    addPiece.color = dropdown[dropdown.selectedIndex].getAttribute('data-color');
+    addPiece.id = parseInt(dropdown[dropdown.selectedIndex].value);
+
+    let response = await fetch('/retrievePieceFromDB',{
+	method: 'POST',
+	body: JSON.stringify(context),
+	mode: 'cors',
+	cache: 'no-cache',
+	credentials: 'same-origin',
+	headers: {
+	    'Content-Type': 'application/json'
+	}
+    });
+    let results = await response.json();
+    addPiece.dir = [];
+    addPiece.dir[0] = []; //so this user defined piece w/ only 1 direction defined works in all functions
+    addPiece.currDir = 0;
+    addPiece.currX = START_X;
+    addPiece.currY = START_Y;
+    results.forEach(point => {
+	addPiece.dir[0].push({col:point.xCoord,row:point.yCoord});
+    });
+
+    //now comput the rotations for this user defined piece
+    while(addPiece.dir.length < 4)
+	addPiece.dir.push(computeRotationalTransformation(addPiece.dir[addPiece.dir.length - 1]));
+    pieces.push(addPiece);
+    addPieceToOccurences(addPiece,pieces.length - 1);
+}
+async function getAllPieceList(){
+    let piecesList = document.getElementById('piecesList');
+    while(piecesList.firstChild) piecesList.removeChild(piecesList.firstChild);
+    let tempOption = document.createElement('option');
+    tempOption.innerText = "Loading";
+    piecesList.appendChild(tempOption);
+    
+    try{
+	let pl = await fetch('/getAllPiecesList');
+	let dbPieces = pl.json();
+	while(piecesList.firstChild) piecesList.removeChild(piecesList.firstChild);
+	
+	dbPieces = await dbPieces;
+	for(let i = 0; i < dbPieces.length; i++){
+	    let option = document.createElement('option');
+	    option.setAttribute('value',dbPieces[i].id);
+	    option.setAttribute('data-color',dbPieces[i].color);
+	    option.innerText = dbPieces[i].name;
+	    piecesList.appendChild(option);
+	}
+    }
+    catch(err){
+	console.log(err);
+	tempOption.innerText = "Failed to load";
+    }
+}
 function playTetris(){
+    pieces.forEach((piece,index) => {
+        addPieceToOccurences(piece,index);
+    });
     spawnNextPiece();
     document.getElementById('tetrisLinesCleared').innerText = START_LINES_CLEARED;
     document.getElementById('tetrisScore').innerText = START_SCORE;
@@ -143,16 +224,19 @@ function playTetris(){
     runTetris();
     
     function keyEvent(event){
-	try{
+	//	try{
 	    if(moveEvent(event,currPiece,arr) && event.key == "ArrowDown"){
 		clearTimeout(timeout);
 		runTetris();
 	    }
-	}
-	catch{
+/*	}
+	catch(err){
+	    if(err) console.log(err);
 	    console.log('game is over');
 	}
+*/
     }
+
     async function runTetris(){
 	if(!currPiece || currPiece.locked){
 	    clearTimeout(timeout);
@@ -178,6 +262,7 @@ function playTetris(){
 	},MILLISECONDS_FACTOR / parseInt(document.getElementById('tetrisLevel').innerText))}
 }
 function replay(){
+    initialize();
     //clear entire gameboard
     let canvas = document.getElementById('tetrisInnerContainer');
     let context = canvas.getContext('2d');
@@ -189,8 +274,10 @@ function replay(){
 }
 
 function spawnPiece(arr){
-    let nextPiece = JSON.parse(JSON.stringify(pieces[parseInt(document.getElementById('nextPiece').value)])); //force copy of random piece
+    let index = parseInt(document.getElementById('nextPiece').value)
+    let nextPiece = JSON.parse(JSON.stringify(pieces[index])); //force copy of random piece
     addToBoard(nextPiece);
+    incrementPiece(index);
     spawnNextPiece();
     if(checkIfValidSpawn(nextPiece,arr)) return nextPiece;
     else return false; 
@@ -201,8 +288,8 @@ function spawnNextPiece(){
     document.getElementById('nextPiece').value = randInt;
     addToNextBoard(nextPiece);
 }
-function addToNextBoard(piece){
-    let canvas = document.getElementById('nextPieceCanvas');
+function addToNextBoard(piece,canvas=document.getElementById('nextPieceCanvas')){
+//    let canvas = document.getElementById('nextPieceCanvas');
     let context = canvas.getContext('2d');
     context.clearRect(0,0,NEXT_BOARD_WIDTH,NEXT_BOARD_HEIGHT);
     context.fillStyle = piece.color;
@@ -229,6 +316,16 @@ function addToBoard(piece){
 			 BLOCK_WIDTH - 1,
 			 BLOCK_HEIGHT - 1)
     });
+}
+function incrementPiece(index){
+    //now increment the number of occurences
+    let occurenceIds = document.getElementsByClassName('pieceIdOccurences');
+    let occurenceNums = document.getElementsByClassName('pieceNumberOccurences');
+    let addIndex;
+    for(let i = 0; i < occurenceIds.length; i++) 
+	if(parseInt(occurenceIds[i].value) == index) addIndex = i;
+    
+    if(addIndex > 0) occurenceNums[addIndex].innerText = parseInt(occurenceNums[addIndex].innerText) + 1;
 }
 function drawBlock(x,y,color,context){
     context.fillStyle = color;
@@ -277,7 +374,7 @@ function movePiece(key,currPiece){
     if(key === "ArrowRight") currPiece.currX++;
     else if(key === "ArrowLeft") currPiece.currX--;
     else if(key === "ArrowDown") currPiece.currY++;
-    else if(key === "ArrowUp") currPiece.currDir = (currPiece.currDir + 1) % 4;
+    else if(key === "ArrowUp") currPiece.currDir = (currPiece.currDir + 1) % currPiece.dir.length;
     
     addToBoard(currPiece);
 }
@@ -291,14 +388,13 @@ function checkIfValidMove(key,currPiece,arr){
     else if(key === "ArrowLeft") tempX--;
     else if(key === "ArrowDown") tempY++;
     else if(key === "ArrowUp"){
-	tempDir = (currPiece.currDir + 1) % 4;
+	tempDir = (currPiece.currDir + 1) % currPiece.dir.length;
     }
     let returnValue = true;
-     currPiece.dir[tempDir].forEach(pieceCoords => {
+    currPiece.dir[tempDir].forEach(pieceCoords => {
 	if((pieceCoords.col + tempX) < 0 || (pieceCoords.col + tempX) >= BOARD_BLOCKS_WIDE
-		|| (pieceCoords.row + tempY) >= (BOARD_BLOCKS_HIGH)) returnValue = false;
-	else if(arr[pieceCoords.row + tempY][pieceCoords.col + tempX]) returnValue = false;;	
-	
+	   || (pieceCoords.row + tempY) >= (BOARD_BLOCKS_HIGH)) returnValue = false;
+	else if(arr[pieceCoords.row + tempY][pieceCoords.col + tempX]) returnValue = false; 
     });
     return returnValue;
 }
@@ -322,11 +418,7 @@ function checkIfRowComplete(arr){
 	    redraw = true;
 	}
     });
-    if(redraw){
-
-	clearAndReDraw(arr);
-	console.log(arr);
-    }
+    if(redraw) clearAndReDraw(arr);
 }
 function clearAndReDraw(arr){
     let canvas = document.getElementById('tetrisInnerContainer');
@@ -341,6 +433,35 @@ function clearAndReDraw(arr){
 function removeRow(arr,index){
     arr.splice(index,1);
     arr.unshift(new Array(BOARD_BLOCKS_WIDE).fill(0));
+}
+function addPieceToOccurences(piece,index){
+    let occurences = document.getElementById('occurenceContainer');
+//    while(occurences.firstChild) occurences.removeChild(occurences.firstChild);
+
+	let div0 = document.createElement('div');
+	div0.setAttribute('class','row');
+	occurences.appendChild(div0);
+	let div00 = document.createElement('div');
+	div00.setAttribute('class','col-6 col-md-4 col-xl-8');
+	div0.appendChild(div00);
+	let div01 = document.createElement('div');
+	div01.setAttribute('class','col-4 col-md-2 col-xl-4');
+	div0.appendChild(div01);
+	let span010 = document.createElement('span');
+	span010.setAttribute('class','pieceNumberOccurences');
+	span010.innerText = '0';
+	div01.appendChild(span010);
+	let input010 = document.createElement('input');
+	input010.setAttribute('hidden',true);
+	input010.setAttribute('class','pieceIdOccurences');
+	input010.setAttribute('value',index);
+	div01.appendChild(input010);
+
+	let canvas = document.createElement('canvas');
+	canvas.setAttribute('width','75px');
+	canvas.setAttribute('height','75px');
+	addToNextBoard(piece,canvas);
+	div00.appendChild(canvas);
 }
 /************************************** MISC FUNCTIONS ******************************************/
 function createArray(){
@@ -371,7 +492,7 @@ function addLineCleared(){
 
 }
 //do a 90deg cc linear transformation, then make sure piece is still on board
-function rotate(dir){
+function computeRotationalTransformation(dir){
     //[ROTATE] * [dir]
     let newDirection = dir.map(block => {
 	return {col:ROTATE[1][0] * block.row + ROTATE[1][1] * block.col,
@@ -379,14 +500,18 @@ function rotate(dir){
     });
     
     var moved;
+    var addCol = 0;
+    var addRow = 0;
     //now make sure block still falls on 4x4 grid
-    do{
-	moved = false;
-	newDirection.forEach(block => {
-	    if(block.col < 0){newDirection.forEach(eachBlock => eachBlock.col += (-block.col)); moved = true;}
-	    if(block.row < 0){newDirection.forEach(eachBlock => eachBlock.row += (-block.row)); moved = true;}
-	});
-    }while(moved);
+    moved = false;
+    newDirection.forEach(block => {
+	if(block.col < -addCol) addCol = -block.col;
+	if(block.row < -addRow) addRow = -block.row;
+    });
+    newDirection.forEach(block => {
+	block.col += addCol;
+	block.row += addRow;
+    });
     
     return newDirection;
 }
