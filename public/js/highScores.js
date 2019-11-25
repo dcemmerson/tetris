@@ -59,7 +59,6 @@ async function fetchHighScores(start=0,packetSize=NUMBER_OF_SCORES_SHOWN){
     return response.json();
 }
 function highScoresAnimation(results){
- 
     var animate = document.createElement('div');
     animate.innerText = results;
     animate.setAttribute('id','highScores');
@@ -73,7 +72,7 @@ function highScoresAnimation(results){
 
     function frame(){
 	try{
-	    if(position >= animate.parentNode.clientWidth){
+	    if(position >= animate.parentNode.parentNode.clientWidth){
 		animate.remove();
 		clearInterval(interval);
 		highScoresAnimation(results);

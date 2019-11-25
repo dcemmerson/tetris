@@ -79,6 +79,7 @@ async function savePiece(){
 	savePieceResponse.style.color = "green";
 	savePieceResponse.innerText = "Saved!";
 	removeFeedback(savePieceResponse);
+	getAllPieceList();
     }
     catch(error){
 	console.log(error);

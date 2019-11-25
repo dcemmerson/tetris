@@ -17,22 +17,14 @@ const START_LEVEL = 1;
 const START_SCORE = 0;
 const START_LINES_CLEARED = 0;
 
-const ROTATE = [[0,-1],[1,0]];
+const ROTATE = [[0,1],[-1,0]];
 //const ROTATE = [{col:0,row:-1},{col:1,row:0}];
 //const ROTATE = [[-1,0],[0,1]];
 
 const START_X = BOARD_BLOCKS_WIDE / 2;
 const START_Y = 0;
 
-/*
-const testPiece = {
-    dir: [{col:0,row:1},{col:1,row:1},{col:2,row:1},{col:3,row:1}],
-    color: "cyan",
-    currDir: 0,
-    currX: START_X,
-    currY: START_Y
-}
-*/
+
 const hardPieces = [//represent the hardcoded pieces
     {
 	dir:[//l
@@ -135,7 +127,7 @@ window.addEventListener('DOMContentLoaded',() => {
     hardPieces.forEach(piece => pieces.push(piece));
     getAllPieceList();
     playTetris();
-    document.getElementById('addPieceToGame').addEventListener('click',retrievePieceFromDB);
+    document.getElementById('addPieceToGame').addEventListener('click',() => retrievePieceFromDB(true));
 });
 
 function initialize(){
@@ -148,7 +140,7 @@ function initialize(){
 //	pieces.push(piece);
 //    });
 }
-async function retrievePieceFromDB(){
+async function retrievePieceFromDB(first=false){
     var context = {};
     let addPiece = {};
     let dropdown = document.getElementById('piecesList');
@@ -181,7 +173,25 @@ async function retrievePieceFromDB(){
     while(addPiece.dir.length < 4)
 	addPiece.dir.push(computeRotationalTransformation(addPiece.dir[addPiece.dir.length - 1]));
     pieces.push(addPiece);
-    addPieceToOccurences(addPiece,pieces.length - 1);
+
+    let feedback = document.getElementById('addedFeedback');
+    try{
+	addPieceToOccurences(addPiece,pieces.length - 1,first);
+	if(first){
+	    feedback.innerText = 'Added piece successfully!';
+	    feedback.style.color = 'green';
+	}
+    }
+    catch(err){
+	console.log(err);
+	if(first){
+	    feedback.innerText = 'Error adding piece!';
+	    feedback.style.color = 'red';
+	}
+    }
+    finally{
+	setTimeout(() => feedback.innerText = '',3000);
+    }
 }
 async function getAllPieceList(){
     let piecesList = document.getElementById('piecesList');
@@ -411,7 +421,6 @@ function checkIfRowComplete(arr){
 	let count = 0;
 	row.forEach((element,index2) => element ? count++ : null);
 	if(count === BOARD_BLOCKS_WIDE){
-	    console.log(arr);
 	    removeRow(arr,index);
 	    addPoints(POINTS_PER_ROW);
 	    addLineCleared();
@@ -434,34 +443,42 @@ function removeRow(arr,index){
     arr.splice(index,1);
     arr.unshift(new Array(BOARD_BLOCKS_WIDE).fill(0));
 }
-function addPieceToOccurences(piece,index){
+function addPieceToOccurences(piece,index,first){
     let occurences = document.getElementById('occurenceContainer');
-//    while(occurences.firstChild) occurences.removeChild(occurences.firstChild);
+    //    while(occurences.firstChild) occurences.removeChild(occurences.firstChild);
 
-	let div0 = document.createElement('div');
-	div0.setAttribute('class','row');
-	occurences.appendChild(div0);
-	let div00 = document.createElement('div');
-	div00.setAttribute('class','col-6 col-md-4 col-xl-8');
-	div0.appendChild(div00);
-	let div01 = document.createElement('div');
-	div01.setAttribute('class','col-4 col-md-2 col-xl-4');
-	div0.appendChild(div01);
-	let span010 = document.createElement('span');
-	span010.setAttribute('class','pieceNumberOccurences');
-	span010.innerText = '0';
-	div01.appendChild(span010);
-	let input010 = document.createElement('input');
-	input010.setAttribute('hidden',true);
-	input010.setAttribute('class','pieceIdOccurences');
-	input010.setAttribute('value',index);
-	div01.appendChild(input010);
+    let div0 = document.createElement('div');
+    div0.setAttribute('class','row');
+    
+    first ? occurences.insertBefore(div0,occurences.childNodes[0]) : occurences.appendChild(div0);
+ 
+    let div00 = document.createElement('div');
+    div00.setAttribute('class','col-6 col-md-4 col-xl-8');
+    div0.appendChild(div00);
+    let div01 = document.createElement('div');
+    div01.setAttribute('class','col-4 col-md-2 col-xl-4');
+    div0.appendChild(div01);
+    let span010 = document.createElement('span');
+    span010.setAttribute('class','pieceNumberOccurences');
+    span010.innerText = '0';
+    div01.appendChild(span010);
+    let input010 = document.createElement('input');
+    input010.setAttribute('hidden',true);
+    input010.setAttribute('class','pieceIdOccurences');
+    input010.setAttribute('value',index);
+    div01.appendChild(input010);
+    
+    let canvas = document.createElement('canvas');
+    canvas.setAttribute('width','75px');
+    canvas.setAttribute('height','75px');
+    addToNextBoard(piece,canvas);
+    div00.appendChild(canvas);
 
-	let canvas = document.createElement('canvas');
-	canvas.setAttribute('width','75px');
-	canvas.setAttribute('height','75px');
-	addToNextBoard(piece,canvas);
-	div00.appendChild(canvas);
+    if(first){
+	let feedback = document.getElementById('addedFeedback');
+	feedback.innerText = 'Piece added successfully';
+	feedback.style.color = 'green';
+    }
 }
 /************************************** MISC FUNCTIONS ******************************************/
 function createArray(){

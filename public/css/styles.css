@@ -69,7 +69,7 @@
     border-radius: 4px;
     border-color: #AAAAAA;
 }
-#highScoresContainer {
+#highScoresContainerContainer {
     overflow: hidden;
     font-family: 'Comic Sans';
 }
@@ -90,4 +90,150 @@
 .createPieceGrid:hover {
     background-color: red;
     cursor: pointer;
+}
+
+/*************************** Resize text for devices *****************************/
+/* mobile */
+@media screen and (max-width: 600px){
+    h1 {
+	font-size: 1.8em;
+    }
+    h3 {
+	font-size: 1.3em;
+    }
+    p {
+	font-size: 0.7em;
+    }
+    .p {
+	font-size: 0.7em;
+    }
+    .sm {
+	font-size: 0.7em;
+    }
+    th {
+	font-size: 0.75em;
+    }
+    td {
+	font-size: 0.75em;
+    }
+    i {
+	font-size: 0.9em;
+    }
+    div p {
+	font-size: 0.63em;
+    }
+    div span {
+	font-size: 0.63em;
+    }
+    div b {
+	font-size: 0.63em;
+    }
+}
+/* tablet - ish */
+@media screen and (min-width: 600px){
+    h1 {
+	font-size: 2.2em;
+    }
+    h3 {
+	font-size: 1.6em;
+    }
+    p {
+	font-size: 0.9em;
+    }
+    .sm {
+	font-size: 0.8em;
+    }
+    .p {
+	font-size: 0.8em;
+    }
+    th {
+	font-size: 0.9em;
+    }
+    td {
+	font-size: 0.9em;
+    }
+    i {
+	font-size: 1.0em;
+    }
+    div p {
+	font-size: 0.65em;
+    }
+    div span {
+	font-size: 0.65em;
+    }
+    div b {
+	font-size: 0.65em;
+    }
+}
+/* laptop - ish */
+@media screen and (min-width: 768px){
+    h1 {
+	font-size: 2.6em;
+    }
+    h3 {
+	font-size: 2.0em;
+    }
+    p {
+	font-size: 1.1em;
+    }
+    .sm {
+	font-size: 0.85em;
+    }
+    .p {
+	font-size: 0.9em;
+    }
+    th {
+	font-size: 1.0em;
+    }
+    td {
+	font-size: 1.0em;
+    }
+    i {
+	font-size: 1.0em;
+    }
+    div p {
+	font-size: 0.75em;
+    }
+    div span {
+	font-size: 0.75em;
+    }
+    div b {
+	font-size: 0.75em;
+    }
+}
+/* laptop - ish */
+@media screen and (min-width: 992px){
+    h1 {
+	font-size: 3.0em;
+    }
+    h3 {
+	font-size: 2.2em;
+    }
+    p {
+	font-size: 1.1em;
+    }
+    .sm {
+	font-size: 0.9em;
+    }
+    .p {
+	font-size: 1.0em;
+    }
+    th {
+	font-size: 1.0em;
+    }
+    td {
+	font-size: 1.0em;
+    }
+    i {
+	font-size: 1.0em;
+    }
+    div p {
+	font-size: 0.85em;
+    }
+    div span {
+	font-size: 0.85em;
+    
+    div b {
+	font-size: 0.85em;
+    }
 }
