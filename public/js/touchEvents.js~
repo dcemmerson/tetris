@@ -1,0 +1,30 @@
+var ongoingTouches = [];
+
+function startTouchELs(){
+    let startX;
+    let startY;
+    let canvas = document.getElementById('tetrisInnerContainer');
+    canvas.addEventListener('touchstart',handleStart,false);
+    canvas.addEventListener('touchend',handleEnd,false);
+    //    canvas.addEventListener('touchcancel',handleCancel);
+    //    canvas.addEventListener('touchmove',handleMove);
+
+    function handleStart(event){
+	event.preventDefault();
+	startX = event.pageX;
+	startY = event.pageY;
+//	var e = new KeyboardEvent("keydown", 
+//				  {bubbles: true, cancelable: true, key: "ArrowUp", charCode: 0,keyCode: 38});
+//	document.getElementsByTagName('body')[0].dispatchEvent(e);	
+    }
+    function handleEnd(event){
+//	event.preventDefault();
+	let deltaX = startX - event.pageX;
+	let deltaY = startY - event.pageY;
+	if(Math.abs(deltaX) < 20 && Math.abs(deltaY) < 20){
+	    var e = new KeyboardEvent("keydown", 
+				      {bubbles: true, cancelable: true, key: "ArrowUp", charCode: 0,keyCode: 38});
+	    document.getElementsByTagName('body')[0].dispatchEvent(e);
+	}
+    }
+}

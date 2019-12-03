@@ -1,20 +1,11 @@
-#tetrisOuterContainer {
-    height: 550px;
-    width: 500px;
-    border: 3px solid black;
-    border-radius: 20px;
+html, body{
+    overflow-x: hidden;
+    max-width: 100%;
 }
 #tetrisInnerContainer {
     border: 1px solid #AAAAAA;
 /*    margin-left: 125px;
 */    border-radius: 5px;
-}
-#nextPieceContainer {
-    border: 1px solid #AAAAAA;
-    max-width: 75px;
-    max-height: 75px;
-    border-radius: 5px;
-    padding: 0px;
 }
 #nextPieceCanvas {
 
@@ -92,7 +83,8 @@
     cursor: pointer;
 }
 
-/*************************** Resize text for devices *****************************/
+/*************************** Resize custom for devices *****************************/   
+
 /* mobile */
 @media screen and (max-width: 600px){
     h1 {
@@ -128,7 +120,22 @@
     div b {
 	font-size: 0.63em;
     }
+    #tetrisOuterContainer {
+	height: 550px;
+	width: 500px;
+
+    }
+    #nextPieceContainer {
+/*	border: 1px solid #AAAAAA;
+		border-radius: 5px;
+*/
+	max-width: 75px;
+	max-height: 75px;
+	padding: 0px;
+	margin-left: 10px;
+    }
 }
+
 /* tablet - ish */
 @media screen and (min-width: 600px){
     h1 {
@@ -163,6 +170,13 @@
     }
     div b {
 	font-size: 0.65em;
+    }
+    #nextPieceContainer {
+	border: 1px solid #AAAAAA;
+	border-radius: 5px;	
+	max-width: 75px;
+	max-height: 75px;
+	padding: 0px;
     }
 }
 /* laptop - ish */
@@ -200,6 +214,13 @@
     div b {
 	font-size: 0.75em;
     }
+    #tetrisOuterContainer {
+	height: 550px;
+	width: 500px;
+	border: 3px solid black;
+	border-radius: 20px;
+    }
+
 }
 /* laptop - ish */
 @media screen and (min-width: 992px){

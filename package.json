@@ -1,14 +1,14 @@
 {
-  "name": "BxTracker",
+  "name": "tetris",
   "version": "1.0.0",
-  "description": "BxTracker",
-  "main": "index.js",
+  "description": "My tetris implementation",
+  "main": "server.js",
   "scripts": {
     "test": "what"
   },
   "repository": {
     "type": "git",
-    "url": "git+https:https://github.com/dcemmerson/Bx"
+    "url": "git+https:https://github.com/dcemmerson/tetris"
   },
   "author": "Dane Emmerson",
   "license": "GPL-3.0-or-later",
@@ -18,11 +18,11 @@
   "homepage": "",
   "dependencies": {
     "bcrypt": "^3.0.6",
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
     "express-ip-access-control": "^1.0.5",
-    "express-session": "^1.16.2",
+    "express-session": "^1.17.0",
     "forever": "^1.0.0",
     "ipaddr.js": "^1.9.1",
     "mysql": "^2.17.1",

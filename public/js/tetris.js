@@ -1,14 +1,6 @@
 const SQUARE = 4; //represents the hidden 4x4 grid that each block fits in
 const BOARD_BLOCKS_WIDE = 10;
 const BOARD_BLOCKS_HIGH = 20;
-const BLOCK_HEIGHT = document.getElementById('tetrisInnerContainer').height / BOARD_BLOCKS_HIGH;
-const BLOCK_WIDTH = document.getElementById('tetrisInnerContainer').width / BOARD_BLOCKS_WIDE;
-const NEXT_BLOCK_HEIGHT = document.getElementById('nextPieceCanvas').height / SQUARE;
-const NEXT_BLOCK_WIDTH = document.getElementById('nextPieceCanvas').width/ SQUARE;
-const NEXT_BOARD_WIDTH = document.getElementById('nextPieceCanvas').width;
-const NEXT_BOARD_HEIGHT = document.getElementById('nextPieceCanvas').height;
-const BOARD_WIDTH = document.getElementById('tetrisInnerContainer').width;
-const BOARD_HEIGHT = document.getElementById('tetrisInnerContainer').height;
 const POINTS_PER_PIECE = 10;
 const POINTS_PER_ROW = 100;
 const MILLISECONDS_FACTOR = 2000; //used to base how fast pieces fall
@@ -123,6 +115,8 @@ const softPieces = [ //represent the user created pieces
 ];
 const pieces = [];
 window.addEventListener('DOMContentLoaded',() => {
+    startTouchELs();
+    resizeBoard();
     initialize();
     hardPieces.forEach(piece => pieces.push(piece));
     getAllPieceList();
@@ -130,15 +124,9 @@ window.addEventListener('DOMContentLoaded',() => {
     document.getElementById('addPieceToGame').addEventListener('click',() => retrievePieceFromDB(true));
 });
 
-function initialize(){
-//    pieces = [];
+function initialize({)
     let occurences = document.getElementById('occurenceContainer');
     while(occurences.firstChild) occurences.removeChild(occurences.firstChild);
-//    softPieces.forEach(piece => {
-//	while(piece.dir.length < 4)
-//	    piece.dir.push(computeRotationalTransformation(piece.dir[piece.dir.length - 1]));
-//	pieces.push(piece);
-//    });
 }
 async function retrievePieceFromDB(first=false){
     var context = {};
